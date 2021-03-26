@@ -16,12 +16,16 @@ var (
 	port           string
 	addr           string
 	authServerAddr string
+	tlsCert        string
+	tlsKey         string
 )
 
 func init() {
 	flag.StringVar(&port, "port", "8000", "listen port")
 	flag.StringVar(&addr, "addr", "127.0.0.1:8001", "fight svc addr")
 	flag.StringVar(&authServerAddr, "auth-server-addr", "127.0.0.1:6666", "auth svc addr")
+	flag.StringVar(&tlsCert, "tls-cert", "", "tls cert")
+	flag.StringVar(&tlsKey, "tls-key", "", "tls key")
 }
 
 func main() {
@@ -71,5 +75,9 @@ func main() {
 	adminGroup.POST("/hero", handler.CreateHero())
 	adminGroup.PUT("/hero", handler.AdjustHero())
 
-	r.Run(":" + port)
+	if tlsCert != "" && tlsKey != "" {
+		r.RunTLS(":"+port, tlsCert, tlsKey)
+	} else {
+		r.Run(":" + port)
+	}
 }
