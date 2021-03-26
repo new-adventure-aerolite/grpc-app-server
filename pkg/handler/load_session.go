@@ -11,7 +11,7 @@ import (
 // LoadSession ...
 func LoadSession(fightSvcClient fight.FightSvcClient) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID := c.Params.ByName("id")
+		userID := c.GetString(("id"))
 
 		resp, err := fightSvcClient.LoadSession(context.Background(), &fight.LoadSessionRequest{
 			Id: userID,

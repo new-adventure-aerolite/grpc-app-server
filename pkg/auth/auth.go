@@ -3,17 +3,61 @@ package auth
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/TianqiuHuang/grpc-client-app/pd/auth"
+	"github.com/gin-gonic/gin"
 )
+
+func AuthMiddleWare(client *Client) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		bearerToken := c.GetHeader("Authorization")
+		IDToken := strings.Split(bearerToken, " ")
+		if len(IDToken) != 2 {
+			c.AbortWithError(http.StatusInternalServerError, fmt.Errorf(
+				"failed to auth, expected header: 'Authorization: bearer <token>'",
+			))
+			return
+		}
+		email, err := client.Validate(IDToken[1])
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+		c.Set("id", email)
+		c.Next()
+	}
+}
+
+func AdminAuthMiddleWare(client *Client) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		bearerToken := c.GetHeader("Authorization")
+		IDToken := strings.Split(bearerToken, " ")
+		if len(IDToken) != 2 {
+			c.AbortWithError(http.StatusInternalServerError, fmt.Errorf(
+				"failed to auth, expected header: 'Authorization: bearer <token>'",
+			))
+			return
+		}
+		email, err := client.ValidateAdmin(IDToken[1])
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+		c.Set("id", email)
+		c.Next()
+	}
+}
 
 type Client struct {
 	authClient auth.AuthServiceClient
 }
 
-func New() {
-
+func New(client auth.AuthServiceClient) *Client {
+	return &Client{
+		authClient: client,
+	}
 }
 
 func (c *Client) Validate(token string) (string, error) {

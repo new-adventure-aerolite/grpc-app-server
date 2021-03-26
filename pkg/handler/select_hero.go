@@ -11,7 +11,7 @@ import (
 // SelectHero ...
 func SelectHero(fightSvcClient fight.FightSvcClient) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		sid := c.Params.ByName("id")
+		sid := c.GetString(("id"))
 		heroName := c.Query("hero")
 
 		resp, err := fightSvcClient.SelectHero(context.Background(), &fight.SelectHeroRequest{

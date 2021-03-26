@@ -32,7 +32,7 @@ func Level(fightSvcClient fight.FightSvcClient) gin.HandlerFunc {
 // game ...
 func game(fightSvcClient fight.FightSvcClient, eventType fight.Type) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		sid := c.Params.ByName("id")
+		sid := c.GetString(("id"))
 
 		resp, err := fightSvcClient.Game(context.Background(), &fight.GameRequest{
 			Type: eventType,
