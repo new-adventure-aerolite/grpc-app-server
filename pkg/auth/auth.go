@@ -12,6 +12,7 @@ import (
 
 func AuthMiddleWare(client *Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		bearerToken := c.GetHeader("Authorization")
 		IDToken := strings.Split(bearerToken, " ")
 		if len(IDToken) != 2 {
@@ -34,6 +35,7 @@ func AuthMiddleWare(client *Client) gin.HandlerFunc {
 
 func AdminAuthMiddleWare(client *Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		bearerToken := c.GetHeader("Authorization")
 		IDToken := strings.Split(bearerToken, " ")
 		if len(IDToken) != 2 {
