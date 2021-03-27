@@ -15,14 +15,14 @@ func AuthMiddleWare(client *Client) gin.HandlerFunc {
 		bearerToken := c.GetHeader("Authorization")
 		IDToken := strings.Split(bearerToken, " ")
 		if len(IDToken) != 2 {
-			c.AbortWithError(http.StatusInternalServerError, fmt.Errorf(
+			c.AbortWithError(http.StatusBadRequest, fmt.Errorf(
 				"failed to auth, expected header: 'Authorization: bearer <token>'",
 			))
 			return
 		}
 		email, err := client.Validate(IDToken[1])
 		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
+			c.AbortWithError(http.StatusUnauthorized, err)
 			return
 		}
 		c.Set("id", email)
@@ -35,14 +35,14 @@ func AdminAuthMiddleWare(client *Client) gin.HandlerFunc {
 		bearerToken := c.GetHeader("Authorization")
 		IDToken := strings.Split(bearerToken, " ")
 		if len(IDToken) != 2 {
-			c.AbortWithError(http.StatusInternalServerError, fmt.Errorf(
+			c.AbortWithError(http.StatusBadRequest, fmt.Errorf(
 				"failed to auth, expected header: 'Authorization: bearer <token>'",
 			))
 			return
 		}
 		email, err := client.ValidateAdmin(IDToken[1])
 		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
+			c.AbortWithError(http.StatusUnauthorized, err)
 			return
 		}
 		c.Set("id", email)
