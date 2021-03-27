@@ -40,7 +40,9 @@ func game(fightSvcClient fight.FightSvcClient, eventType fight.Type) gin.Handler
 		})
 
 		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
+			c.AbortWithStatusJSON(http.StatusInternalServerError, map[string]string{
+				"error": err.Error(),
+			})
 			return
 		}
 
@@ -54,7 +56,9 @@ func game(fightSvcClient fight.FightSvcClient, eventType fight.Type) gin.Handler
 		case fight.Type_QUIT:
 			c.JSON(http.StatusOK, resp.GetQuit())
 		default:
-			c.AbortWithError(http.StatusNotFound, fmt.Errorf("event type: '%T' doesn't exist", fight.Type_name[int32(resp.Type)]))
+			c.AbortWithStatusJSON(http.StatusNotFound, map[string]string{
+				"error": fmt.Sprintf("event type: '%T' doesn't exist", fight.Type_name[int32(resp.Type)]),
+			})
 			return
 		}
 	} // return func

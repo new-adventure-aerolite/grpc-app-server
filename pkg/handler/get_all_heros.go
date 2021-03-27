@@ -14,7 +14,9 @@ func GetAllHeros(fightSvcClient fight.FightSvcClient) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		stream, err := fightSvcClient.ListHeros(context.Background(), &fight.ListHerosRequest{})
 		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
+			c.AbortWithStatusJSON(http.StatusInternalServerError, map[string]string{
+				"error": err.Error(),
+			})
 			return
 		}
 
@@ -27,7 +29,9 @@ func GetAllHeros(fightSvcClient fight.FightSvcClient) gin.HandlerFunc {
 			}
 
 			if err != nil {
-				c.AbortWithError(http.StatusInternalServerError, err)
+				c.AbortWithStatusJSON(http.StatusInternalServerError, map[string]string{
+					"error": err.Error(),
+				})
 				return
 			}
 

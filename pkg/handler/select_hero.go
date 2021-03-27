@@ -20,7 +20,9 @@ func SelectHero(fightSvcClient fight.FightSvcClient) gin.HandlerFunc {
 		})
 
 		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
+			c.AbortWithStatusJSON(http.StatusInternalServerError, map[string]string{
+				"error": err.Error(),
+			})
 			return
 		}
 

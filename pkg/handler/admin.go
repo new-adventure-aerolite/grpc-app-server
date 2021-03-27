@@ -45,7 +45,9 @@ func AdjustHero() gin.HandlerFunc {
 			Type: fight.AdminRequest_ADJUST_HERO,
 		})
 		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
+			c.AbortWithStatusJSON(http.StatusInternalServerError, map[string]string{
+				"error": err.Error(),
+			})
 			return
 		}
 		c.JSON(http.StatusOK, gin.H{
@@ -60,7 +62,9 @@ func CreateHero() gin.HandlerFunc {
 		var hero fight.Hero
 		err := json.NewDecoder(c.Request.Body).Decode(&hero)
 		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
+			c.AbortWithStatusJSON(http.StatusBadRequest, map[string]string{
+				"error": err.Error(),
+			})
 			return
 		}
 		err = foreverAdminStream.Send(&fight.AdminRequest{
@@ -68,7 +72,9 @@ func CreateHero() gin.HandlerFunc {
 			Type:  fight.AdminRequest_CREATE_HERO,
 		})
 		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
+			c.AbortWithStatusJSON(http.StatusInternalServerError, map[string]string{
+				"error": err.Error(),
+			})
 			return
 		}
 		c.JSON(http.StatusOK, gin.H{
