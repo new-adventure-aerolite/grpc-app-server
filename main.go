@@ -48,6 +48,9 @@ func main() {
 	authSvcClient := auth.NewAuthServiceClient(authConn)
 	authClient := auth_middle_ware.New(authSvcClient)
 	r.Use(func(c *gin.Context) {
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(200)
+		}
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Next()
 	})
