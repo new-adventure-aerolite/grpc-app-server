@@ -48,10 +48,13 @@ func main() {
 	authSvcClient := auth.NewAuthServiceClient(authConn)
 	authClient := auth_middle_ware.New(authSvcClient)
 	r.Use(func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT")
+		c.Writer.Header().Set("Access-Control-Allow-Headers",
+			"Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Authorization, Access-Control-Request-Method, Access-Control-Request-Headers")
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(200)
 		}
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Next()
 	})
 
