@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strings"
 
+	"os"
+
 	"github.com/TianqiuHuang/grpc-client-app/pd/auth"
 	"github.com/gin-gonic/gin"
 )
@@ -16,6 +18,9 @@ func AuthMiddleWare(client *Client) gin.HandlerFunc {
 		bearerToken := c.GetHeader("Authorization")
 		IDToken := strings.Split(bearerToken, " ")
 		if len(IDToken) != 2 {
+			if os.Getenv("DEBUG") != "" {
+				fmt.Println(bearerToken)
+			}
 			c.AbortWithStatusJSON(http.StatusUnauthorized, map[string]string{
 				"error": "failed to auth, expected header: 'Authorization: bearer <token>'",
 			})

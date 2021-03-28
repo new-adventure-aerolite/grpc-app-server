@@ -33,7 +33,7 @@ func main() {
 
 	gin.DisableConsoleColor()
 	r := gin.Default()
-	// gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.DebugMode)
 
 	conn, err := grpc.Dial(addr, grpc.WithInsecure())
 	if err != nil {
@@ -47,6 +47,10 @@ func main() {
 	}
 	authSvcClient := auth.NewAuthServiceClient(authConn)
 	authClient := auth_middle_ware.New(authSvcClient)
+	r.Use(func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Next()
+	})
 
 	group := r.Group("/", auth_middle_ware.AuthMiddleWare(authClient))
 	group.GET("/heros", handler.GetAllHeros(fightSvcClient))
