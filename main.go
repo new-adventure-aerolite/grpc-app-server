@@ -7,6 +7,7 @@ import (
 	"github.com/TianqiuHuang/grpc-client-app/pd/fight"
 	auth_middle_ware "github.com/TianqiuHuang/grpc-client-app/pkg/auth"
 	"github.com/TianqiuHuang/grpc-client-app/pkg/handler"
+	"github.com/TianqiuHuang/grpc-client-app/pkg/middleware/jaegerMiddleware"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
 	"k8s.io/klog"
@@ -34,6 +35,9 @@ func main() {
 	gin.DisableConsoleColor()
 	r := gin.Default()
 	// gin.SetMode(gin.ReleaseMode)
+
+	// add openTracing middleware
+	r.Use(jaegerMiddleware.OpenTracingMiddleware())
 
 	conn, err := grpc.Dial(addr, grpc.WithInsecure())
 	if err != nil {
