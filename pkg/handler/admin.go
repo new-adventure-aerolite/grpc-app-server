@@ -69,6 +69,12 @@ func CreateHero() gin.HandlerFunc {
 			})
 			return
 		}
+		if len(hero.Details) <= 8 {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": "the length of hero details must be greater than 8",
+			})
+			return
+		}
 		err = foreverAdminStream.Send(&fight.AdminRequest{
 			Heros: []*fight.Hero{&hero},
 			Type:  fight.AdminRequest_CREATE_HERO,
