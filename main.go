@@ -48,13 +48,13 @@ func main() {
 	opentracing.SetGlobalTracer(tracer)
 
 	// add openTracing middleware
-	r.Use(jaegerMiddleware.OpenTracingMiddleware(tracer))
+	r.Use(jaegerMiddleware.OpenTracingMiddleware())
 	// r.Use(jaegerMiddleware.AfterOpenTracingMiddleware(tracer))
 
 	// trace on grpc client
 	dialOpts := []grpc.DialOption{grpc.WithInsecure()}
 	if tracer != nil {
-		dialOpts = append(dialOpts, grpc.WithUnaryInterceptor(jaeger_service.ClientInterceptor(tracer, "call gRPC")))
+		dialOpts = append(dialOpts, grpc.WithUnaryInterceptor(jaeger_service.ClientInterceptor(tracer, "call fight gRPC")))
 	} else {
 		log.Fatal("tracer is nil, exist")
 	}

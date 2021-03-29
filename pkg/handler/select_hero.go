@@ -14,7 +14,8 @@ func SelectHero(fightSvcClient fight.FightSvcClient) gin.HandlerFunc {
 		sid := c.GetString(("id"))
 		heroName := c.Query("hero")
 
-		resp, err := fightSvcClient.SelectHero(context.Background(), &fight.SelectHeroRequest{
+		ctx, _ := c.Get("SpanContext")
+		resp, err := fightSvcClient.SelectHero(ctx.(context.Context), &fight.SelectHeroRequest{
 			Id:       sid,
 			HeroName: heroName,
 		})

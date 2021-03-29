@@ -43,7 +43,8 @@ func AdminAuthMiddleWare(client *Client) gin.HandlerFunc {
 			})
 			return
 		}
-		email, err := client.ValidateAdmin(IDToken[1])
+		ctx, _ := c.Get("SpanContext")
+		email, err := client.ValidateAdmin(IDToken[1], ctx.(context.Context))
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, map[string]string{
 				"error": err.Error(),
@@ -79,8 +80,8 @@ func (c *Client) Validate(token string, ctx context.Context) (string, error) {
 	return resp.Email, nil
 }
 
-func (c *Client) ValidateAdmin(token string) (string, error) {
-	resp, err := c.authClient.Validate(context.Background(), &auth.ValidateRequest{
+func (c *Client) ValidateAdmin(token string, ctx context.Context) (string, error) {
+	resp, err := c.authClient.Validate(ctx, &auth.ValidateRequest{
 		RawIdToken: token,
 		ClaimNames: []string{"email"},
 	})
