@@ -66,7 +66,7 @@ func main() {
 	group.POST("/session/archive", handler.Archive(fightSvcClient))
 	group.POST("/session/level", handler.Level(fightSvcClient))
 	group.POST("/session/quit", handler.Quit(fightSvcClient))
-	group.POST("/session/clear", nil)
+	group.POST("/session/clear", handler.ClearSession(fightSvcClient))
 
 	go func() {
 		if err := handler.InitTop10Client(fightSvcClient); err != nil {
