@@ -29,6 +29,22 @@ func Level(fightSvcClient fight.FightSvcClient) gin.HandlerFunc {
 	return game(fightSvcClient, fight.Type_LEVEL)
 }
 
+func ClearSession(fightSvcClient fight.FightSvcClient) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ID := c.GetString("ID")
+		resp, err := fightSvcClient.ClearSession(context.Background(), &fight.ClearSessionRequest{
+			Id: ID,
+		})
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, map[string]string{
+				"error": err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusOK, resp)
+	}
+}
+
 // game ...
 func game(fightSvcClient fight.FightSvcClient, eventType fight.Type) gin.HandlerFunc {
 	return func(c *gin.Context) {

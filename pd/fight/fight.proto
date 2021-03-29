@@ -12,11 +12,20 @@ service FightSvc {
     rpc LoadSession (LoadSessionRequest) returns (SessionView);
     rpc SelectHero (SelectHeroRequest) returns (SessionView);
     rpc Game (GameRequest) returns (GameResponse);
+    rpc ClearSession (ClearSessionRequest) returns (ClearSessionResponse);
 
     // here stream is used to keep the long-alive connection and get real top10
     rpc Top10 (Top10Request) returns (stream Top10Response);
 
     rpc Admin (stream AdminRequest) returns (stream AdminResponse);
+}
+
+message ClearSessionRequest {
+    string id = 1;
+}
+
+message ClearSessionResponse {
+    string msg = 1;
 }
 
 message AdminRequest {
