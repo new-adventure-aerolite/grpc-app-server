@@ -31,7 +31,7 @@ func Level(fightSvcClient fight.FightSvcClient) gin.HandlerFunc {
 
 func ClearSession(fightSvcClient fight.FightSvcClient) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		ID := c.GetString("ID")
+		ID := c.GetString("id")
 		resp, err := fightSvcClient.ClearSession(context.Background(), &fight.ClearSessionRequest{
 			Id: ID,
 		})
