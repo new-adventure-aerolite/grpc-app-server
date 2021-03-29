@@ -88,7 +88,7 @@ func (c *Client) Validate(token string) (string, error) {
 func (c *Client) ValidateAdmin(token string) (string, error) {
 	resp, err := c.authClient.Validate(context.Background(), &auth.ValidateRequest{
 		RawIdToken: token,
-		ClaimNames: []string{"email"},
+		ClaimNames: []string{"email", "groups"},
 	})
 	if err != nil {
 		return "", err
