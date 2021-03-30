@@ -10,7 +10,8 @@ import (
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/opentracing/opentracing-go/log"
 	"github.com/uber/jaeger-client-go"
-	jaegerConfig "github.com/uber/jaeger-client-go/config"
+	"github.com/uber/jaeger-client-go/transport"
+	"github.com/uber/jaeger-client-go/zipkin"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/metadata"
@@ -25,24 +26,36 @@ var Tracer opentracing.Tracer
 
 func NewJaegerTracer(serviceName string, jaegerHostPort string) (opentracing.Tracer, io.Closer, error) {
 
-	cfg := &jaegerConfig.Configuration{
-		Sampler: &jaegerConfig.SamplerConfig{
-			Type:  "const", //固定采样
-			Param: 1,       //1=全采样、0=不采样
-		},
+	// cfg := &jaegerConfig.Configuration{
+	// 	Sampler: &jaegerConfig.SamplerConfig{
+	// 		Type:  "const", //固定采样
+	// 		Param: 1,       //1=全采样、0=不采样
+	// 	},
 
-		Reporter: &jaegerConfig.ReporterConfig{
-			LogSpans:           true,
-			LocalAgentHostPort: jaegerHostPort,
-		},
+	// 	Reporter: &jaegerConfig.ReporterConfig{
+	// 		LogSpans:           true,
+	// 		LocalAgentHostPort: jaegerHostPort,
+	// 	},
 
-		ServiceName: serviceName,
-	}
+	// 	ServiceName: serviceName,
+	// }
 
 	var closer io.Closer
 	var err error
 
-	Tracer, closer, err = cfg.NewTracer(jaegerConfig.Logger(jaeger.StdLogger))
+	//
+	propagator := zipkin.NewZipkinB3HTTPHeaderPropagator()
+	tracer, closer := jaeger.NewTracer(
+		"grpc-app-server",
+		jaeger.NewConstSampler(true),
+		jaeger.NewRemoteReporter(transport.NewHTTPTransport("http://"+jaegerHostPort+"/api/traces?format=jaeger.thrift")),
+		//jaeger.NewNullReporter(),
+		jaeger.TracerOptions.Injector(opentracing.HTTPHeaders, propagator),
+		jaeger.TracerOptions.Extractor(opentracing.HTTPHeaders, propagator),
+		jaeger.TracerOptions.ZipkinSharedRPCSpan(true),
+	)
+	Tracer = tracer
+	//
 
 	if err != nil {
 		panic(fmt.Sprintf("ERROR: cannot init Jaeger: %v\n", err))
