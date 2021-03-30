@@ -12,5 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package rpcmetrics implements an Observer that can be used to emit RPC metrics.
-package rpcmetrics
+// Package zipkin comprises Zipkin functionality for Zipkin compatibility.
+package zipkin

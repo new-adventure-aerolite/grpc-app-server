@@ -53,7 +53,7 @@ func main() {
 	gin.SetMode(gin.DebugMode)
 
 	// new jaeger tracer
-	tracer, _, err := jaeger_service.NewJaegerTracer("grpc-app-server", "127.0.0.1:6831")
+	tracer, _, err := jaeger_service.NewJaegerTracer("grpc-app-server", "jaeger-collector.istio-system.svc.cluster.local:14268")
 	if err != nil {
 		klog.Fatal(err)
 	}
