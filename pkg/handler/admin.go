@@ -32,7 +32,7 @@ func InitAdminClient(fightSvcClient fight.FightSvcClient) error {
 			return err
 		}
 		for _, hero := range resp.Heros {
-			klog.Info("hero: '%v' has been updated", hero)
+			klog.Infof("hero: '%v' has been updated", hero)
 			if err = cache.HeroStore.Update(hero); err != nil {
 				return err
 			}
