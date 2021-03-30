@@ -2,11 +2,13 @@ package main
 
 import (
 	"flag"
+	"time"
 
 	"github.com/TianqiuHuang/grpc-client-app/pd/auth"
 	"github.com/TianqiuHuang/grpc-client-app/pd/fight"
 	auth_middle_ware "github.com/TianqiuHuang/grpc-client-app/pkg/auth"
 	"github.com/TianqiuHuang/grpc-client-app/pkg/handler"
+	"github.com/TianqiuHuang/grpc-client-app/pkg/istio"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
 	"k8s.io/klog"
@@ -30,6 +32,17 @@ func init() {
 
 func main() {
 	flag.Parse()
+
+	proxy := istio.New(10, 10*time.Second, 30*time.Second)
+	if err := proxy.Wait(); err != nil {
+		klog.Fatal(err)
+	}
+
+	defer func() {
+		if err := proxy.Close(); err != nil {
+			klog.Error(err)
+		}
+	}()
 
 	gin.DisableConsoleColor()
 	r := gin.Default()
