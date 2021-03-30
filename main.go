@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"log"
 	"time"
 
 	"github.com/TianqiuHuang/grpc-client-app/pd/auth"
@@ -9,7 +10,10 @@ import (
 	auth_middle_ware "github.com/TianqiuHuang/grpc-client-app/pkg/auth"
 	"github.com/TianqiuHuang/grpc-client-app/pkg/handler"
 	"github.com/TianqiuHuang/grpc-client-app/pkg/istio"
+	"github.com/TianqiuHuang/grpc-client-app/pkg/jaeger_service"
+	"github.com/TianqiuHuang/grpc-client-app/pkg/middleware/jaegerMiddleware"
 	"github.com/gin-gonic/gin"
+	"github.com/opentracing/opentracing-go"
 	"google.golang.org/grpc"
 	"k8s.io/klog"
 )
@@ -48,16 +52,39 @@ func main() {
 	r := gin.Default()
 	gin.SetMode(gin.DebugMode)
 
-	conn, err := grpc.Dial(addr, grpc.WithInsecure())
+	// new jaeger tracer
+	tracer, _, err := jaeger_service.NewJaegerTracer("grpc-app-server", "127.0.0.1:6831")
+	if err != nil {
+		klog.Fatal(err)
+	}
+
+	opentracing.SetGlobalTracer(tracer)
+
+	// add openTracing middleware
+	r.Use(jaegerMiddleware.OpenTracingMiddleware())
+	// r.Use(jaegerMiddleware.AfterOpenTracingMiddleware(tracer))
+
+	// trace on grpc client
+	dialOpts := []grpc.DialOption{grpc.WithInsecure()}
+	if tracer != nil {
+		dialOpts = append(dialOpts, grpc.WithUnaryInterceptor(jaeger_service.ClientInterceptor(tracer, "call fight gRPC")))
+	} else {
+		log.Fatal("tracer is nil, exist")
+	}
+
+	// create fight connection
+	conn, err := grpc.Dial(addr, dialOpts...)
 	if err != nil {
 		klog.Fatal(err)
 	}
 	fightSvcClient := fight.NewFightSvcClient(conn)
 
-	authConn, err := grpc.Dial(authServerAddr, grpc.WithInsecure())
+	// create auth connection
+	authConn, err := grpc.Dial(authServerAddr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(jaeger_service.ClientInterceptor(tracer, "call auth gRPC")))
 	if err != nil {
 		klog.Fatal(err)
 	}
+
 	authSvcClient := auth.NewAuthServiceClient(authConn)
 	authClient := auth_middle_ware.New(authSvcClient)
 	r.Use(func(c *gin.Context) {

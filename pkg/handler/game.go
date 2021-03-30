@@ -50,7 +50,8 @@ func game(fightSvcClient fight.FightSvcClient, eventType fight.Type) gin.Handler
 	return func(c *gin.Context) {
 		sid := c.GetString(("id"))
 
-		resp, err := fightSvcClient.Game(context.Background(), &fight.GameRequest{
+		ctx, _ := c.Get("SpanContext")
+		resp, err := fightSvcClient.Game(ctx.(context.Context), &fight.GameRequest{
 			Type: eventType,
 			Id:   sid,
 		})

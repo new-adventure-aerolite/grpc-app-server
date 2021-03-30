@@ -13,7 +13,8 @@ func LoadSession(fightSvcClient fight.FightSvcClient) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userID := c.GetString("id")
 
-		resp, err := fightSvcClient.LoadSession(context.Background(), &fight.LoadSessionRequest{
+		ctx, _ := c.Get("SpanContext")
+		resp, err := fightSvcClient.LoadSession(ctx.(context.Context), &fight.LoadSessionRequest{
 			Id: userID,
 		})
 
