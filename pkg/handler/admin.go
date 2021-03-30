@@ -52,7 +52,7 @@ func AdjustHero() gin.HandlerFunc {
 			})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{
+		c.JSON(http.StatusAccepted, gin.H{
 			"status": "ok",
 		})
 	}
@@ -85,7 +85,7 @@ func CreateHero() gin.HandlerFunc {
 			})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{
+		c.JSON(http.StatusAccepted, gin.H{
 			"status": "ok",
 		})
 	} // return func
