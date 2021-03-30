@@ -12,19 +12,22 @@ func OpenTracingMiddleware() gin.HandlerFunc {
 		carrier := opentracing.HTTPHeadersCarrier(c.Request.Header)
 		wireSpanCtx, _ := opentracing.GlobalTracer().Extract(opentracing.HTTPHeaders, carrier)
 		// FIXME: handle err?
-		// log.Println(parentSpanCtx, err)
 
 		serverSpan := opentracing.GlobalTracer().StartSpan("rpc-app-server", ext.RPCServerOption(wireSpanCtx))
 		defer serverSpan.Finish()
 
-		//span, ctx := opentracing.StartSpanFromContext(c.Request.Context(), c.Request.URL.Path)
-		//defer span.Finish()
-
-		opentracing.GlobalTracer().Inject(serverSpan.Context(), opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(c.Request.Header))
 		c.Request = c.Request.WithContext(
 			opentracing.ContextWithSpan(c.Request.Context(), serverSpan))
 
-		//c.Set("SpanContext", c.Request.Context())
+		// if we bring the c.Request.Context() which contains the serverSpan already
+		// to the Gin's internal map by below code:
+		//     c.Set("SpanContext", c.Request.Context())
+		// then we don't have to Inject the server span's context to the
+		// carrier as below line of code does
+
+		// opentracing.GlobalTracer().Inject(serverSpan.Context(), opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(c.Request.Header))
+
+		c.Set("SpanContext", c.Request.Context())
 
 		c.Next()
 	}

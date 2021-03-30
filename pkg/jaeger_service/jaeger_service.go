@@ -25,21 +25,6 @@ func ServerOption(tracer opentracing.Tracer) grpc.ServerOption {
 var Tracer opentracing.Tracer
 
 func NewJaegerTracer(serviceName string, jaegerHostPort string) (opentracing.Tracer, io.Closer, error) {
-
-	// cfg := &jaegerConfig.Configuration{
-	// 	Sampler: &jaegerConfig.SamplerConfig{
-	// 		Type:  "const", //固定采样
-	// 		Param: 1,       //1=全采样、0=不采样
-	// 	},
-
-	// 	Reporter: &jaegerConfig.ReporterConfig{
-	// 		LogSpans:           true,
-	// 		LocalAgentHostPort: jaegerHostPort,
-	// 	},
-
-	// 	ServiceName: serviceName,
-	// }
-
 	var closer io.Closer
 	var err error
 
@@ -49,7 +34,6 @@ func NewJaegerTracer(serviceName string, jaegerHostPort string) (opentracing.Tra
 		"grpc-app-server",
 		jaeger.NewConstSampler(true),
 		jaeger.NewRemoteReporter(transport.NewHTTPTransport("http://"+jaegerHostPort+"/api/traces?format=jaeger.thrift")),
-		//jaeger.NewNullReporter(),
 		jaeger.TracerOptions.Injector(opentracing.HTTPHeaders, propagator),
 		jaeger.TracerOptions.Extractor(opentracing.HTTPHeaders, propagator),
 		jaeger.TracerOptions.ZipkinSharedRPCSpan(true),
@@ -75,7 +59,7 @@ func ClientInterceptor(tracer opentracing.Tracer, operationName string) grpc.Una
 		req, reply interface{}, cc *grpc.ClientConn,
 		invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
 
-		span, _ := opentracing.StartSpanFromContext(
+		span, grpcClientCtx := opentracing.StartSpanFromContext(
 			ctx,
 			operationName,
 			opentracing.Tag{Key: string(ext.Component), Value: "gRPC"},
@@ -83,7 +67,7 @@ func ClientInterceptor(tracer opentracing.Tracer, operationName string) grpc.Una
 		)
 		defer span.Finish()
 
-		md, ok := metadata.FromOutgoingContext(ctx)
+		md, ok := metadata.FromOutgoingContext(grpcClientCtx)
 		if !ok {
 			md = metadata.New(nil)
 		} else {
@@ -91,7 +75,19 @@ func ClientInterceptor(tracer opentracing.Tracer, operationName string) grpc.Una
 		}
 
 		mdWriter := MDReaderWriter{md}
-		err := tracer.Inject(span.Context(), opentracing.TextMap, mdWriter)
+		// Note:
+		//   Be careful the format here should be align with
+		//   what the tracer was set during the creation time like below
+		//       	tracer, closer := jaeger.NewTracer(
+		//             "grpc-app-server",
+		//              ... ...
+		//             jaeger.TracerOptions.Injector(opentracing.HTTPHeaders, propagator),
+		//             jaeger.TracerOptions.Extractor(opentracing.HTTPHeaders, propagator),
+		//          )
+		//   To be friendly to Envoy/Istio, then the format and carrier can only be:
+		//         - opentracing.HTTPHeaders
+		//         - httpHeader likely carrier, i.e. the MDReaderWriter below.
+		err := tracer.Inject(span.Context(), opentracing.HTTPHeaders, mdWriter)
 		if err != nil {
 			span.LogFields(log.String("inject-error", err.Error()))
 		}
