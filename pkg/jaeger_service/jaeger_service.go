@@ -31,7 +31,7 @@ func NewJaegerTracer(serviceName string, jaegerHostPort string) (opentracing.Tra
 	//
 	propagator := zipkin.NewZipkinB3HTTPHeaderPropagator()
 	tracer, closer := jaeger.NewTracer(
-		"grpc-app-server",
+		serviceName,
 		jaeger.NewConstSampler(true),
 		jaeger.NewRemoteReporter(transport.NewHTTPTransport("http://"+jaegerHostPort+"/api/traces?format=jaeger.thrift")),
 		jaeger.TracerOptions.Injector(opentracing.HTTPHeaders, propagator),
