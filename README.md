@@ -11,6 +11,8 @@ App server handles rest request from frontend, communicates with the auth server
 ```sh
 $ git clone https://github.com/new-adventure-aerolite/grpc-app-server.git
 
+cd grpc-app-server
+
 $ go mod tidy && go mod vendor
 
 $ go build -o app-server ./main.go
