@@ -6,9 +6,9 @@ import (
 
 	"encoding/json"
 
-	"github.com/TianqiuHuang/grpc-client-app/pd/fight"
-	"github.com/TianqiuHuang/grpc-client-app/pkg/cache"
 	"github.com/gin-gonic/gin"
+	"github.com/new-adventure-areolite/grpc-app-server/pd/fight"
+	"github.com/new-adventure-areolite/grpc-app-server/pkg/cache"
 
 	// "google.golang.org/grpc"
 	"k8s.io/klog"

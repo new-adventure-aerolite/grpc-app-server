@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/TianqiuHuang/grpc-client-app/pd/fight"
+	"github.com/new-adventure-areolite/grpc-app-server/pd/fight"
 	"github.com/patrickmn/go-cache"
 )
 

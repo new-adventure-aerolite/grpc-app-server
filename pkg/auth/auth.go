@@ -8,8 +8,8 @@ import (
 
 	"os"
 
-	"github.com/TianqiuHuang/grpc-client-app/pd/auth"
 	"github.com/gin-gonic/gin"
+	"github.com/new-adventure-areolite/grpc-app-server/pd/auth"
 )
 
 func AuthMiddleWare(client *Client) gin.HandlerFunc {

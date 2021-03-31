@@ -1,4 +1,4 @@
-module github.com/TianqiuHuang/grpc-client-app
+module github.com/new-adventure-areolite/grpc-app-server
 
 go 1.14
 

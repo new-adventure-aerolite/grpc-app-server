@@ -6,8 +6,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/TianqiuHuang/grpc-client-app/pd/fight"
 	"github.com/gin-gonic/gin"
+	"github.com/new-adventure-areolite/grpc-app-server/pd/fight"
 )
 
 var (
