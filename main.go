@@ -76,7 +76,7 @@ func main() {
 	fightSvcClient := fight.NewFightSvcClient(conn)
 
 	// create auth connection
-	authConn, err := grpc.Dial(authServerAddr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(jaeger_service.ClientInterceptor(tracer, "call auth gRPC")))
+	authConn, err := grpc.Dial(authServerAddr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(jaeger_service.ClientInterceptor(tracer, "call auth gRPC client")))
 	if err != nil {
 		klog.Fatal(err)
 	}

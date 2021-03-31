@@ -13,7 +13,7 @@ func OpenTracingMiddleware() gin.HandlerFunc {
 		wireSpanCtx, _ := opentracing.GlobalTracer().Extract(opentracing.HTTPHeaders, carrier)
 		// FIXME: handle err?
 
-		serverSpan := opentracing.GlobalTracer().StartSpan("rpc-app-server", ext.RPCServerOption(wireSpanCtx))
+		serverSpan := opentracing.GlobalTracer().StartSpan("app-server-backend", ext.RPCServerOption(wireSpanCtx))
 		defer serverSpan.Finish()
 
 		c.Request = c.Request.WithContext(
