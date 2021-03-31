@@ -26,8 +26,7 @@ func AuthMiddleWare(client *Client) gin.HandlerFunc {
 			})
 			return
 		}
-		//ctx, _ := c.Get("SpanContext")
-		//email, err := client.Validate(IDToken[1], ctx.(context.Context))
+
 		email, err := client.Validate(IDToken[1], c.Request.Context())
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, map[string]string{
