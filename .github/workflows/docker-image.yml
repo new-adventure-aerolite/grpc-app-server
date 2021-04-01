@@ -1,5 +1,8 @@
-on: [push]
 name: Linux_Container_Workflow
+
+on:
+  push:
+    branches: [ main ]
 
 jobs:
     build:
