@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/new-adventure-areolite/grpc-app-server/pd/auth"
+	"google.golang.org/grpc/metadata"
 )
 
 func AuthMiddleWare(client *Client) gin.HandlerFunc {
@@ -40,6 +41,10 @@ func AuthMiddleWare(client *Client) gin.HandlerFunc {
 		} else {
 			c.Set("user-type", "normal")
 		}
+		newCtx := metadata.NewOutgoingContext(c.Request.Context(), metadata.Pairs(
+			"user-type", c.GetString("user-type"),
+		))
+		c.Request = c.Request.WithContext(newCtx)
 		c.Next()
 	}
 }
@@ -75,6 +80,10 @@ func AdminAuthMiddleWare(client *Client) gin.HandlerFunc {
 		} else {
 			c.Set("user-type", "normal")
 		}
+		newCtx := metadata.NewOutgoingContext(c.Request.Context(), metadata.Pairs(
+			"user-type", c.GetString("user-type"),
+		))
+		c.Request = c.Request.WithContext(newCtx)
 		c.Next()
 	}
 }
