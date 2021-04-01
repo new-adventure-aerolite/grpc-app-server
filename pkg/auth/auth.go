@@ -27,7 +27,7 @@ func AuthMiddleWare(client *Client) gin.HandlerFunc {
 			return
 		}
 
-		email, err := client.Validate(IDToken[1], c.Request.Context())
+		email, isAdmin, err := client.ValidateAdmin(c.Request.Context(), IDToken[1])
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, map[string]string{
 				"error": err.Error(),
@@ -35,6 +35,11 @@ func AuthMiddleWare(client *Client) gin.HandlerFunc {
 			return
 		}
 		c.Set("id", email)
+		if isAdmin {
+			c.Set("user-type", "admin")
+		} else {
+			c.Set("user-type", "normal")
+		}
 		c.Next()
 	}
 }
@@ -50,8 +55,14 @@ func AdminAuthMiddleWare(client *Client) gin.HandlerFunc {
 			})
 			return
 		}
-		ctx, _ := c.Get("SpanContext")
-		email, err := client.ValidateAdmin(IDToken[1], ctx.(context.Context))
+		ctxInterface, _ := c.Get("SpanContext")
+		ctx := ctxInterface.(context.Context)
+		email, isAdmin, err := client.ValidateAdmin(ctx, IDToken[1])
+		if !isAdmin {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"error": "this request needs admin access",
+			})
+		}
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, map[string]string{
 				"error": err.Error(),
@@ -59,6 +70,11 @@ func AdminAuthMiddleWare(client *Client) gin.HandlerFunc {
 			return
 		}
 		c.Set("id", email)
+		if isAdmin {
+			c.Set("user-type", "admin")
+		} else {
+			c.Set("user-type", "normal")
+		}
 		c.Next()
 	}
 }
@@ -73,39 +89,22 @@ func New(client auth.AuthServiceClient) *Client {
 	}
 }
 
-func (c *Client) Validate(token string, ctx context.Context) (string, error) {
-	resp, err := c.authClient.Validate(ctx, &auth.ValidateRequest{
-		RawIdToken: token,
-		ClaimNames: []string{"email"},
-	})
-	if err != nil {
-		return "", err
-	}
-	if resp.Email == "" {
-		return "", fmt.Errorf("email must not be empty")
-	}
-	return resp.Email, nil
-}
-
-func (c *Client) ValidateAdmin(token string, ctx context.Context) (string, error) {
+func (c *Client) ValidateAdmin(ctx context.Context, token string) (string, bool, error) {
 	resp, err := c.authClient.Validate(ctx, &auth.ValidateRequest{
 		RawIdToken: token,
 		ClaimNames: []string{"email", "groups"},
 	})
 	if err != nil {
-		return "", err
+		return "", false, err
 	}
 	if resp.Email == "" {
-		return "", fmt.Errorf("email must not be empty")
+		return "", false, fmt.Errorf("email must not be empty")
 	}
-	var admin = false
+	var isAdmin = false
 	for i := range resp.Groups {
 		if strings.Contains(resp.Groups[i], "admin") {
-			admin = true
+			isAdmin = true
 		}
 	}
-	if !admin {
-		return "", fmt.Errorf("email is not an admin")
-	}
-	return resp.Email, nil
+	return resp.Email, isAdmin, nil
 }

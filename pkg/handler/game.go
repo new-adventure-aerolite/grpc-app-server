@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/new-adventure-areolite/grpc-app-server/pd/fight"
+	"google.golang.org/grpc/metadata"
 )
 
 // Fight ...
@@ -49,9 +50,11 @@ func ClearSession(fightSvcClient fight.FightSvcClient) gin.HandlerFunc {
 func game(fightSvcClient fight.FightSvcClient, eventType fight.Type) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sid := c.GetString(("id"))
+		ctx := metadata.NewOutgoingContext(c.Request.Context(), metadata.Pairs(
+			"user-type", c.GetString("user-type"),
+		))
 
-		ctx, _ := c.Get("SpanContext")
-		resp, err := fightSvcClient.Game(ctx.(context.Context), &fight.GameRequest{
+		resp, err := fightSvcClient.Game(ctx, &fight.GameRequest{
 			Type: eventType,
 			Id:   sid,
 		})
