@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"io"
 	"net/http"
 
@@ -12,8 +11,7 @@ import (
 // GetAllHeros ...
 func GetAllHeros(fightSvcClient fight.FightSvcClient) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		ctx, _ := c.Get("SpanContext")
-		stream, err := fightSvcClient.ListHeros(ctx.(context.Context), &fight.ListHerosRequest{})
+		stream, err := fightSvcClient.ListHeros(c.Request.Context(), &fight.ListHerosRequest{})
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, map[string]string{
 				"error": err.Error(),

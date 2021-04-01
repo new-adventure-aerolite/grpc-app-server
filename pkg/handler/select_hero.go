@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -14,8 +13,7 @@ func SelectHero(fightSvcClient fight.FightSvcClient) gin.HandlerFunc {
 		sid := c.GetString(("id"))
 		heroName := c.Query("hero")
 
-		ctx, _ := c.Get("SpanContext")
-		resp, err := fightSvcClient.SelectHero(ctx.(context.Context), &fight.SelectHeroRequest{
+		resp, err := fightSvcClient.SelectHero(c.Request.Context(), &fight.SelectHeroRequest{
 			Id:       sid,
 			HeroName: heroName,
 		})

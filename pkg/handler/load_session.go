@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -13,8 +12,7 @@ func LoadSession(fightSvcClient fight.FightSvcClient) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userID := c.GetString("id")
 
-		ctx, _ := c.Get("SpanContext")
-		resp, err := fightSvcClient.LoadSession(ctx.(context.Context), &fight.LoadSessionRequest{
+		resp, err := fightSvcClient.LoadSession(c.Request.Context(), &fight.LoadSessionRequest{
 			Id: userID,
 		})
 
