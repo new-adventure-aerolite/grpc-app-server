@@ -41,9 +41,7 @@ func AuthMiddleWare(client *Client) gin.HandlerFunc {
 		} else {
 			c.Set("user-type", "normal")
 		}
-		newCtx := metadata.NewOutgoingContext(c.Request.Context(), metadata.Pairs(
-			"user-type", c.GetString("user-type"),
-		))
+		newCtx := metadata.AppendToOutgoingContext(c.Request.Context(), "user-type", c.GetString("user-type"))
 		c.Request = c.Request.WithContext(newCtx)
 		c.Next()
 	}
@@ -80,9 +78,7 @@ func AdminAuthMiddleWare(client *Client) gin.HandlerFunc {
 		} else {
 			c.Set("user-type", "normal")
 		}
-		newCtx := metadata.NewOutgoingContext(c.Request.Context(), metadata.Pairs(
-			"user-type", c.GetString("user-type"),
-		))
+		newCtx := metadata.AppendToOutgoingContext(c.Request.Context(), "user-type", c.GetString("user-type"))
 		c.Request = c.Request.WithContext(newCtx)
 		c.Next()
 	}
