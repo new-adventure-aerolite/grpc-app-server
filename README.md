@@ -15,13 +15,13 @@ cd grpc-app-server
 
 $ go mod tidy && go mod vendor
 
-$ go build -o app-server ./main.go
+$ make
 ```
 
 help info:
 
 ```sh
-$ ./app-server -h            
+$ .build/app-server -h
 Usage of ./app-server:
   -addr string
         fight svc addr (default "127.0.0.1:8001")
